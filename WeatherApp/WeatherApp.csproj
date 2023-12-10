@@ -1,0 +1,66 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net7.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>Images\logo.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Images\cloud.png" />
+    <None Remove="Images\day_image.jpg" />
+    <None Remove="Images\evening_image.jpg" />
+    <None Remove="Images\explore.png" />
+    <None Remove="Images\feels_like.png" />
+    <None Remove="Images\humidity.png" />
+    <None Remove="Images\logo.ico" />
+    <None Remove="Images\low-visibility.png" />
+    <None Remove="Images\morning_image.jpg" />
+    <None Remove="Images\night_image.jpg" />
+    <None Remove="Images\pressure.png" />
+    <None Remove="Images\sunrise.png" />
+    <None Remove="Images\sunset.png" />
+    <None Remove="Images\wind_speed.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Images\logo.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Images\cloud.png" />
+    <Resource Include="Images\day_image.jpg" />
+    <Resource Include="Images\evening_image.jpg" />
+    <Resource Include="Images\explore.png" />
+    <Resource Include="Images\feels_like.png" />
+    <Resource Include="Images\humidity.png" />
+    <Resource Include="Images\logo.ico" />
+    <Resource Include="Images\low-visibility.png" />
+    <Resource Include="Images\morning_image.jpg" />
+    <Resource Include="Images\night_image.jpg" />
+    <Resource Include="Images\pressure.png" />
+    <Resource Include="Images\sunrise.png" />
+    <Resource Include="Images\sunset.png" />
+    <Resource Include="Images\wind_speed.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="LocationInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
+  </ItemGroup>
+
+</Project>
