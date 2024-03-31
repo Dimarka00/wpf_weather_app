@@ -68,8 +68,27 @@ namespace WeatherApp
 
         private void btnSearch_Click(object sender, RoutedEventArgs e)
         {
-            getWeather();
-            getForecastWeather();
+            {
+                try
+                {
+                    getWeather();
+                    getForecastWeather();
+                }
+                catch (Exception ex)
+                {
+                    if (ex is WebException webEx && webEx.Response is HttpWebResponse response && response.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        // Город не найден
+                        MessageBox.Show("Город не найден. Проверьте, что название города введено корректно.");
+                    }
+                    else
+                    {
+                        // Ошибка при получении данных о погоде
+                        Console.WriteLine("Ошибка: " + ex.Message);
+                        MessageBox.Show("Произошла ошибка при получении данных о погоде");
+                    }
+                }
+            }
         }
 
         private void textSearch_MouseDown(object sender, MouseButtonEventArgs e)
@@ -89,42 +108,27 @@ namespace WeatherApp
         {
             string connectionString = "Data Source=DESKTOP-SJ4I1LF;Initial Catalog=WeatherDatabase;Integrated Security=True;";
 
-            try
+            if (_dataManager.CheckInternetConnection())
             {
-                if (_dataManager.CheckInternetConnection())
+                using (WebClient web = new WebClient())
                 {
-                    using (WebClient web = new WebClient())
-                    {
-                        string apiKey = GetApiKeyFromDatabase(connectionString); // Получаем API_KEY из базы данных
+                    string apiKey = GetApiKeyFromDatabase(connectionString); // Получаем API_KEY из базы данных
 
-                        string url = string.Format("https://api.openweathermap.org/data/2.5/weather?q={0}&appid={1}&units=metric&lang=ru", txtSearch.Text, apiKey);
-                        var json = web.DownloadString(url);
+                    string url = string.Format("https://api.openweathermap.org/data/2.5/weather?q={0}&appid={1}&units=metric&lang=ru", txtSearch.Text, apiKey);
+                    var json = web.DownloadString(url);
 
-                        WeatherInfo.root weatherData = JsonConvert.DeserializeObject<WeatherInfo.root>(json);
+                    WeatherInfo.root weatherData = JsonConvert.DeserializeObject<WeatherInfo.root>(json);
 
-                        UpdateWeatherUI(weatherData);
+                    UpdateWeatherUI(weatherData);
 
-                        WeatherInfoHandler weatherInfoHandler = new WeatherInfoHandler();
-                        weatherInfoHandler.SaveWeatherDataOnSearch(weatherData);
-                    }
-                }
-                else
-                {
-                    _dataManager.ShowNoInternetMessage();
+                    WeatherInfoHandler weatherInfoHandler = new WeatherInfoHandler();
+                    weatherInfoHandler.SaveWeatherDataOnSearch(weatherData);
                 }
             }
-            catch (WebException ex)
+
+            else
             {
-                var response = ex.Response as HttpWebResponse;
-                if (response != null && response.StatusCode == HttpStatusCode.NotFound)
-                {
-                    MessageBox.Show("Город не найден");
-                }
-                else
-                {
-                    Console.WriteLine("Ошибка: " + ex.Message);
-                    MessageBox.Show("Произошла ошибка при получении данных о погоде");
-                }
+                _dataManager.ShowNoInternetMessage();
             }
         }
 
