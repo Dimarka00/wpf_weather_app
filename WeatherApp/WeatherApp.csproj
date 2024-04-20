@@ -16,7 +16,8 @@
     <DebugType>embedded</DebugType>
   </PropertyGroup>
 
-  <ItemGroup>
+	<ItemGroup>
+    <None Remove="Images\close.png" />
     <None Remove="Images\cloud.png" />
     <None Remove="Images\day_image.jpg" />
     <None Remove="Images\evening_image.jpg" />
@@ -25,6 +26,7 @@
     <None Remove="Images\humidity.png" />
     <None Remove="Images\logo.ico" />
     <None Remove="Images\low-visibility.png" />
+    <None Remove="Images\minimize.png" />
     <None Remove="Images\morning_image.jpg" />
     <None Remove="Images\night_image.jpg" />
     <None Remove="Images\pressure.png" />
@@ -38,6 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Images\close.png" />
     <Resource Include="Images\cloud.png" />
     <Resource Include="Images\day_image.jpg" />
     <Resource Include="Images\evening_image.jpg" />
@@ -46,6 +49,7 @@
     <Resource Include="Images\humidity.png" />
     <Resource Include="Images\logo.ico" />
     <Resource Include="Images\low-visibility.png" />
+    <Resource Include="Images\minimize.png" />
     <Resource Include="Images\morning_image.jpg" />
     <Resource Include="Images\night_image.jpg" />
     <Resource Include="Images\pressure.png" />

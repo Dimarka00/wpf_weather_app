@@ -6,7 +6,7 @@
     <Application.Resources>
         
         <Style x:Key="textHint" TargetType="TextBlock">
-            <Setter Property="Foreground" Value="#acb0af"/>
+            <Setter Property="Foreground" Value="White"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Grid.Column" Value="1"/>
             <Setter Property="Panel.ZIndex" Value="1"/>
@@ -46,7 +46,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Label">
-                        <TextBlock FontSize="28" FontWeight="SemiBold" Foreground="#333333">
+                        <TextBlock FontSize="28" FontWeight="SemiBold" Foreground="#FFFFFF">
                             <ContentPresenter VerticalAlignment="Center" HorizontalAlignment="Center"/>
                         </TextBlock>
                     </ControlTemplate>

@@ -10,16 +10,31 @@
 
     <Window.Resources>
         <utils:TimeOfDayToImageConverter x:Key="TimeOfDayToImageConverter"/>
+        <utils:TimeOfDayToVideoConverter x:Key="TimeOfDayToVideoConverter" />
     </Window.Resources>
 
     <Grid>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="260"/>
+            <ColumnDefinition Width="240"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
+        <!-- Видео на заднем фоне -->
+        <MediaElement x:Name="backgroundVideo"
+              LoadedBehavior="Manual" UnloadedBehavior="Stop"
+              Stretch="UniformToFill" IsMuted="True" Opacity="1" Grid.ColumnSpan="2"
+              MediaEnded="BackgroundVideo_MediaEnded">
+            <MediaElement.Source>
+                <Binding Path="." Converter="{StaticResource TimeOfDayToVideoConverter}" />
+            </MediaElement.Source>
+        </MediaElement>
+
+
         <!--Левая сторона интерфейса-->
-        <Border CornerRadius="30 0 0 30" Background="#FFFFFF" Grid.RowSpan="2">
+        <Border Grid.Column="0" Margin="-2,0,2,0">
+            <Border.Background>
+                <SolidColorBrush Color="White" Opacity="0.1"/>
+            </Border.Background>
             <StackPanel>
                 <!--TextBox Search-->
                 <Border BorderBrush="#d9d9d9" BorderThickness="1" CornerRadius="5" HorizontalAlignment="Center" Width="200" Margin="0 35 0 0">
@@ -37,21 +52,21 @@
 
                 <StackPanel Margin="50 60 0 0">
                     <Image x:Name="imgWeatherIcon" Width="100" HorizontalAlignment="Left"/>
-                    <TextBlock x:Name="mainTemp" Text="N/A" FontSize="46" Margin="0 2 0 0"/>
-                    <TextBlock x:Name="dateNow" Text="N/A" FontSize="18" FontWeight="SemiBold" Margin="0 15 0 0"/>
+                    <TextBlock x:Name="mainTemp" Foreground="White" Text="N/A" FontSize="46" Margin="0 2 0 0"/>
+                    <TextBlock x:Name="dateNow" Foreground="White" Text="N/A" FontSize="18" FontWeight="SemiBold" Margin="0 15 0 0"/>
                     <Separator Background="#dadada" Height="0.8" Margin="3 30 40 30"/>
 
                     <StackPanel Orientation="Horizontal">
-                        <Image x:Name="imgWeatherIconSmall" Width="20" Height="20"/>
-                        <TextBlock x:Name="weatherConditions" Text="N/A" FontSize="14" FontWeight="SemiBold" Margin="10 0 0 0" VerticalAlignment="Center"/>
+                        <Image x:Name="imgWeatherIconSmall" Width="30" Height="30"/>
+                        <TextBlock x:Name="weatherConditions" Foreground="White" Text="N/A" FontSize="14" FontWeight="SemiBold" Margin="10 0 0 0" VerticalAlignment="Center"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0 15 0 77">
-                        <Image Source="Images/pressure.png" Width="20" Height="20"/>
-                        <TextBlock x:Name="pressureNow" Text="N/A" FontSize="14" FontWeight="SemiBold" Margin="10 0 0 0" VerticalAlignment="Center"/>
+                        <Image Source="Images/pressure.png" Width="30" Height="30"/>
+                        <TextBlock x:Name="pressureNow" Foreground="White" Text="N/A" FontSize="14" FontWeight="SemiBold" Margin="10 0 0 0" VerticalAlignment="Center"/>
                     </StackPanel>
                 </StackPanel>
 
-                <Border Margin="0 30" Width="230" Height="100">
+                <Border Width="230" Height="100">
                     <Border.CornerRadius>
                         <CornerRadius TopRight="15" TopLeft="15" BottomRight="15" BottomLeft="15"/>
                     </Border.CornerRadius>
@@ -59,127 +74,209 @@
                         <Binding Path="Padding" RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType=Border}"/>
                     </Border.Padding>
                     <Border.Background>
-                        <ImageBrush Stretch="Fill" Opacity="0.8" ImageSource="{Binding RelativeSource={RelativeSource Self}, Converter={StaticResource TimeOfDayToImageConverter}}"/>
+                        <ImageBrush Stretch="Fill" Opacity="0.95" ImageSource="{Binding RelativeSource={RelativeSource Self}, Converter={StaticResource TimeOfDayToImageConverter}}"/>
                     </Border.Background>
                     <TextBlock x:Name="cityBlock" Text="N/A" Foreground="#FFFFFF" VerticalAlignment="Center" TextAlignment="Center" FontWeight="Bold" FontSize="20"/>
                 </Border>
-
             </StackPanel>
-
         </Border>
 
-        <!--Правая сторона интерфейса-->
-        <Border CornerRadius="0 30 30 0" Grid.Column="1" Background="#F6F6F6" MouseDown="Border_MouseDown" Grid.RowSpan="2">
-            <StackPanel>
-                <Grid Margin="40 30 40 10">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                        <Label Content="Погода на неделю" Style="{StaticResource textButton}"/>
-                    </StackPanel>
 
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Content="°C" Style="{StaticResource labelTemp}" Background="#1a1a1a" Foreground="#ffffff"/>
-                    </StackPanel>
-                </Grid>
-
-                <StackPanel x:Name="FLP" Orientation="Horizontal" Margin="40 20 0 20">
-                </StackPanel>
-
-                <TextBlock Text="Погода на сегодня" FontSize="20" FontWeight="SemiBold" Margin="40 10 0 10"/>
-
-                <WrapPanel Margin="40 0 0 0">
-                    <!--1 виджет-->
-                    <Border Style="{StaticResource widgetBorder}">
-                        <Grid>
-                            <TextBlock Text="Ветер" Style="{StaticResource titleText}"/>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock x:Name="labWindSpeed" Text="N/A" FontSize="34" FontWeight="SemiBold"/>
-                                <TextBlock Text="м/с" FontSize="14" VerticalAlignment="Bottom" Margin="5 0 0 3"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
-                                <Image Source="Images/wind_speed.png" Width="40" Height="35" Margin="0 0 10 0"/>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
-
-                    <!--2 виджет-->
-                    <Border Style="{StaticResource widgetBorder}">
-                        <StackPanel>
-                            <TextBlock Text="Восход и закат" Style="{StaticResource titleText}"/>
-
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0 25 0 0">
-                                <Image Source="Images/sunrise.png" Width="40" Height="40" Margin="0 0 10 0"/>
-                                <StackPanel>
-                                    <TextBlock x:Name="labSunrise" Text="N/A" FontSize="16" FontWeight="SemiBold"/>
-                                </StackPanel>
-                            </StackPanel>
-
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0 10 0 0">
-                                <Image Source="Images/sunset.png" Width="40" Height="40" Margin="0 0 10 0"/>
-                                <StackPanel>
-                                    <TextBlock x:Name="labSunset" Text="N/A" FontSize="16" FontWeight="SemiBold"/>
-                                </StackPanel>
-                            </StackPanel>
+        <!-- Правая сторона интерфейса -->
+        <Grid Grid.Column="1" Grid.RowSpan="2">
+            <!-- Содержимое правой стороны интерфейса -->
+            <Border CornerRadius="0 30 30 0" Background="Transparent" MouseDown="Border_MouseDown">
+                <StackPanel>
+                    <Grid Margin="40 30 40 10">
+                        <StackPanel
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal">
+                            <Label Content="Погода на неделю" Style="{StaticResource textButton}"/>
                         </StackPanel>
-                    </Border>
 
-                    <!--3 виджет-->
-                    <Border Style="{StaticResource widgetBorder}">
-                        <Grid>
-                            <TextBlock Text="Влажность воздуха" Style="{StaticResource titleText}"/>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock x:Name="labHumidity" Text="N/A" FontSize="34" FontWeight="SemiBold"/>
-                                <TextBlock Text="" FontSize="14" VerticalAlignment="Bottom" Margin="5 0 0 3"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
-                                <Image Source="Images/humidity.png" Width="35" Height="35" Margin="0 0 10 0"/>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
+                        <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                            <Button
+                            Name="btnMinimize"
+                            Width="38"
+                            Height="38"
+                            Click="button_Click"
+                            Cursor="Hand">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="#FFFFFF" />
+                                        <Setter Property="BorderThickness" Value="0" />
+                                        <Setter Property="BorderBrush" Value="#FFFFFF" />
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="25">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
 
-                    <!--4 виджет-->
-                    <Border Style="{StaticResource widgetBorder}">
-                        <Grid>
-                            <TextBlock Text="Ощущается как" Style="{StaticResource titleText}"/>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock x:Name="labFeelsLike" Text="N/A" FontSize="34" FontWeight="SemiBold"/>
-                                <TextBlock Text="" FontSize="14" VerticalAlignment="Bottom" Margin="5 0 0 3"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
-                                <Image Source="Images/feels_like.png" Width="35" Height="35" Margin="0 0 10 0"/>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="BorderBrush" Value="#03A9F4" />
+                                                <Setter Property="BorderThickness" Value="2" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <Image
+                                Width="20"
+                                Height="20"
+                                Source="/Images/minimize.png" />
+                            </Button>
 
-                    <!--5 виджет-->
-                    <Border Style="{StaticResource widgetBorder}">
-                        <Grid>
-                            <TextBlock Text="Облачность" Style="{StaticResource titleText}"/>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock x:Name="labClouds"  Text="N/A" FontSize="34" FontWeight="SemiBold"/>
-                                <TextBlock Text="" FontSize="14" VerticalAlignment="Bottom" Margin="5 0 0 3"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
-                                <Image Source="Images/cloud.png" Width="35" Height="35" Margin="0 0 10 0"/>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
+                            <Button
+                            Name="btnClose"
+                            Width="38"
+                            Height="38"
+                            Margin="10,0,0,0"
+                            Click="button_Click"
+                            Cursor="Hand">
+                                <Button.Style>
+                                    <Style TargetType="Button">
+                                        <Setter Property="Background" Value="#FFFFFF" />
+                                        <Setter Property="BorderThickness" Value="0" />
+                                        <Setter Property="BorderBrush" Value="#FFFFFF" />
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="25">
+                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                                    </Border>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
 
-                    <!--6 виджет-->
-                    <Border Style="{StaticResource widgetBorder}">
-                        <Grid>
-                            <TextBlock Text="Видимость" Style="{StaticResource titleText}"/>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock x:Name="labVisibility" Text="N/A" FontSize="34" FontWeight="SemiBold"/>
-                                <TextBlock Text="" FontSize="14" VerticalAlignment="Bottom" Margin="5 0 0 3"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
-                                <Image Source="Images/low-visibility.png" Width="35" Height="35" Margin="0 0 10 0"/>
-                            </StackPanel>
-                        </Grid>
-                    </Border>
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="BorderBrush" Value="#FF5733" />
+                                                <Setter Property="BorderThickness" Value="2" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                                <Image
+                                Width="20"
+                                Height="20"
+                                Source="/Images/close.png" />
+                            </Button>
+                        </StackPanel>
+                    </Grid>
 
-                </WrapPanel>
-            </StackPanel>
-        </Border>
+                    <StackPanel x:Name="FLP" Orientation="Horizontal" Margin="40 20 0 20">
+                    </StackPanel>
+
+                    <TextBlock Text="Погода на сегодня" Foreground="#FFFFFF"  FontSize="20" FontWeight="SemiBold" Margin="40 10 0 10"/>
+
+                    <WrapPanel Margin="40 0 0 0">
+                        <!--1 виджет-->
+                        <Border Style="{StaticResource widgetBorder}">
+                            <Grid>
+                                <TextBlock Text="Ветер" Style="{StaticResource titleText}"/>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock x:Name="labWindSpeed" Text="N/A" FontSize="34" FontWeight="SemiBold"/>
+                                    <TextBlock Text="м/с" FontSize="14" VerticalAlignment="Bottom" Margin="5 0 0 3"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+                                    <Image Source="Images/wind_speed.png" Width="40" Height="35" Margin="0 0 10 0"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!--2 виджет-->
+                        <Border Style="{StaticResource widgetBorder}">
+                            <StackPanel>
+                                <TextBlock Text="Восход и закат" Style="{StaticResource titleText}"/>
+
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0 25 0 0">
+                                    <Image Source="Images/sunrise.png" Width="40" Height="40" Margin="0 0 10 0"/>
+                                    <StackPanel>
+                                        <TextBlock x:Name="labSunrise" Text="N/A" FontSize="16" FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0 10 0 0">
+                                    <Image Source="Images/sunset.png" Width="40" Height="40" Margin="0 0 10 0"/>
+                                    <StackPanel>
+                                        <TextBlock x:Name="labSunset" Text="N/A" FontSize="16" FontWeight="SemiBold"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!--3 виджет-->
+                        <Border Style="{StaticResource widgetBorder}">
+                            <Grid>
+                                <TextBlock Text="Влажность воздуха" Style="{StaticResource titleText}"/>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock x:Name="labHumidity" Text="N/A" FontSize="34" FontWeight="SemiBold"/>
+                                    <TextBlock Text="" FontSize="14" VerticalAlignment="Bottom" Margin="5 0 0 3"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+                                    <Image Source="Images/humidity.png" Width="35" Height="35" Margin="0 0 10 0"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!--4 виджет-->
+                        <Border Style="{StaticResource widgetBorder}">
+                            <Grid>
+                                <TextBlock Text="Ощущается как" Style="{StaticResource titleText}"/>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock x:Name="labFeelsLike" Text="N/A" FontSize="34" FontWeight="SemiBold"/>
+                                    <TextBlock Text="" FontSize="14" VerticalAlignment="Bottom" Margin="5 0 0 3"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+                                    <Image Source="Images/feels_like.png" Width="35" Height="35" Margin="0 0 10 0"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!--5 виджет-->
+                        <Border Style="{StaticResource widgetBorder}">
+                            <Grid>
+                                <TextBlock Text="Облачность" Style="{StaticResource titleText}"/>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock x:Name="labClouds"  Text="N/A" FontSize="34" FontWeight="SemiBold"/>
+                                    <TextBlock Text="" FontSize="14" VerticalAlignment="Bottom" Margin="5 0 0 3"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+                                    <Image Source="Images/cloud.png" Width="35" Height="35" Margin="0 0 10 0"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                        <!--6 виджет-->
+                        <Border Style="{StaticResource widgetBorder}">
+                            <Grid>
+                                <TextBlock Text="Видимость" Style="{StaticResource titleText}"/>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock x:Name="labVisibility" Text="N/A" FontSize="34" FontWeight="SemiBold"/>
+                                    <TextBlock Text="" FontSize="14" VerticalAlignment="Bottom" Margin="5 0 0 3"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Bottom">
+                                    <Image Source="Images/low-visibility.png" Width="35" Height="35" Margin="0 0 10 0"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+
+                    </WrapPanel>
+                </StackPanel>
+            </Border>
+        </Grid>
     </Grid>
 </Window>

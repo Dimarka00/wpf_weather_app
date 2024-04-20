@@ -1,32 +1,18 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.NetworkInformation;
+﻿using System.Net.NetworkInformation;
 
-namespace WeatherApp
+public class WeatherDataManager
 {
-    public class WeatherDataManager
+    public bool CheckInternetConnection()
     {
-        public bool CheckInternetConnection()
+        try
         {
-            try
-            {
-                Ping ping = new Ping();
-                PingReply reply = ping.Send("8.8.8.8"); // Google Public DNS
-                return reply.Status == IPStatus.Success;
-            }
-            catch (PingException)
-            {
-                return false;
-            }
+            Ping ping = new Ping();
+            PingReply reply = ping.Send("8.8.8.8"); // Google Public DNS
+            return reply.Status == IPStatus.Success;
         }
-
-        public void ShowNoInternetMessage()
+        catch (PingException)
         {
-            var noInternetWindow = new NoInternetWindow();
-            noInternetWindow.ShowDialog(); // Показать окно с сообщением об отсутствии интернета
+            return false;
         }
     }
 }

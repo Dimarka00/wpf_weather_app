@@ -1,26 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using Newtonsoft.Json;
-using System.Net;
 using System.Windows.Threading;
 using WeatherApp.UserControls;
 using WeatherApp.Utils;
-using static WeatherApp.ForecastWeatherInfo;
-using System.Configuration;
 using System.Data.SqlClient;
 using System.Diagnostics;
+using System.Net.NetworkInformation;
 
 namespace WeatherApp
 {
     public partial class MainWindow : Window
     {
         private WeatherDataManager _dataManager;
+
+        private WeatherInfo currentResult;
+
+        private bool internetAvailable = false; // Переменная для отслеживания доступности интернета
+
+        private MainWindow _mainWindow;
+
+        private BitmapImage weatherIcon;
 
         string connectionString = "Data Source=DESKTOP-SJ4I1LF;Initial Catalog=WeatherDatabase;Integrated Security=True;";
 
@@ -39,6 +44,9 @@ namespace WeatherApp
             InitializeTimer();
             getWeatherOnStart();
             getForecastWeatherOnStart();
+
+            backgroundVideo.Loaded += BackgroundVideo_Loaded;
+            backgroundVideo.MediaEnded += BackgroundVideo_MediaEnded;
 
         }
         private void Timer_Tick(object sender, EventArgs e)
@@ -79,7 +87,7 @@ namespace WeatherApp
                     if (ex is WebException webEx && webEx.Response is HttpWebResponse response && response.StatusCode == HttpStatusCode.NotFound)
                     {
                         // Город не найден
-                        MessageBox.Show("Город не найден. Проверьте, что название города введено корректно.");
+                        MessageBox.Show("Город не найден.");
                     }
                     else
                     {
@@ -125,14 +133,9 @@ namespace WeatherApp
                     weatherInfoHandler.SaveWeatherDataOnSearch(weatherData);
                 }
             }
-
-            else
-            {
-                _dataManager.ShowNoInternetMessage();
-            }
         }
 
-        void getWeatherOnStart()
+        public void getWeatherOnStart()
         {
             string connectionString = "Data Source=DESKTOP-SJ4I1LF;Initial Catalog=WeatherDatabase;Integrated Security=True;";
 
@@ -151,7 +154,6 @@ namespace WeatherApp
 
                     string weatherUrl = string.Format("https://api.openweathermap.org/data/2.5/weather?lat={0}&lon={1}&appid={2}&units=metric&lang=ru", locationData.Lat, locationData.Lon, apiKey);
                     var json = web.DownloadString(weatherUrl);
-                    Trace.WriteLine(json);
 
                     WeatherInfo.root weatherData = JsonConvert.DeserializeObject<WeatherInfo.root>(json);
 
@@ -160,10 +162,6 @@ namespace WeatherApp
                     WeatherInfoHandler weatherInfoHandler = new WeatherInfoHandler();
                     weatherInfoHandler.SaveWeatherDataOnStart(weatherData);
                 }
-            }
-            else
-            {
-                _dataManager.ShowNoInternetMessage();
             }
         }
         DateTime convertDataTime(long millisec)
@@ -188,12 +186,8 @@ namespace WeatherApp
                     UpdateForecastUI(ForecastInfo);
                 }
             }
-            else
-            {
-                _dataManager.ShowNoInternetMessage();
-            }
         }
-        void getForecastWeatherOnStart()
+        public void getForecastWeatherOnStart()
         {
             string connectionString = "Data Source=DESKTOP-SJ4I1LF;Initial Catalog=WeatherDatabase;Integrated Security=True;";
 
@@ -217,10 +211,6 @@ namespace WeatherApp
                     UpdateForecastUI(ForecastInfo);
                 }
             }
-            else
-            {
-                _dataManager.ShowNoInternetMessage();
-            }
         }
         public void UpdateWeatherUI(WeatherInfo.root weatherData)
         {
@@ -231,6 +221,7 @@ namespace WeatherApp
             weatherIcon.EndInit();
             imgWeatherIcon.Source = weatherIcon;
             imgWeatherIconSmall.Source = weatherIcon;
+
 
             int roundedTemperature = (int)Math.Round(weatherData.main.temp);
             mainTemp.Text = $"{roundedTemperature}°C";
@@ -299,17 +290,23 @@ namespace WeatherApp
                 int roundedMaxTemperature = (int)Math.Round(maxTemp);
                 int roundedMinTemperature = (int)Math.Round(minTemp);
 
-                CardDay CD = new CardDay();
-
                 // Получаем название дня недели на русском языке
                 string dayOfWeek = russianDayNames[(int)entry.Key.DayOfWeek];
+
+                // Создаем экземпляр CardDay
+                CardDay CD = new CardDay();
+
+                // Назначаем источник изображения до добавления CardDay в FLP
+                CD.lbIcon.Source = weatherIcon;
 
                 CD.lbMaxTemp.Text = $"{roundedMaxTemperature}°C".ToString();
                 CD.lbMinTemp.Text = $"{roundedMinTemperature}°C".ToString();
                 CD.lbDay.Text = dayOfWeek; // Устанавливаем название дня недели на русском языке
 
+                // Добавляем CardDay в FLP
                 FLP.Children.Add(CD);
             }
+
         }
         public string GetApiKeyFromDatabase(string connectionString)
         {
@@ -361,6 +358,33 @@ namespace WeatherApp
                     return "Облачно";
                 default:
                     return weatherMain;
+            }
+        }
+        private void BackgroundVideo_Loaded(object sender, RoutedEventArgs e)
+        {
+            // Воспроизводим видео после загрузки элемента управления
+            backgroundVideo.Play();
+        }
+
+        private void BackgroundVideo_MediaEnded(object sender, RoutedEventArgs e)
+        {
+            // Перезапуск видео с начала после окончания воспроизведения
+            backgroundVideo.Position = TimeSpan.Zero;
+            backgroundVideo.Play();
+        }
+
+        private void button_Click(object sender, RoutedEventArgs e)
+        {
+            var btn = (Button)sender;
+            switch (btn.Name)
+            {
+                case "btnMinimize":
+                    WindowState = WindowState.Minimized;
+                    break;
+                case "btnClose":
+                    Close();
+                    Environment.Exit(0);
+                    break;
             }
         }
     }
